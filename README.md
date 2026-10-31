@@ -1,58 +1,21 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Sistema operativo utilizado: Windows 10 / 11.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+1. ¿Por qué la temperatura suele aparecer como "No disponible" en Windows?
 
-## About Laravel
+Respuesta: Porque la clase de WMI encargada de proveer la temperatura (MSAcpi_ThermalZoneTemperature) requiere permisos de administrador elevados y que, además, la placa base y los sensores de hardware del equipo expongan dicha información al sistema operativo de forma compatible.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+2. ¿Por qué el script de PowerShell nunca debe incluir datos que vengan del usuario?
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Respuesta: Porque al utilizar funciones como shell_exec(), si se concatenaran datos provenientes de entradas del usuario (formularios, parámetros URL, etc.) sin sanitizar, se expondría la aplicación a una vulnerabilidad crítica de inyección de comandos, permitiendo la ejecución arbitraria de código malicioso en el servidor.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+3. ¿Qué riesgo tiene dejar /api/metrics sin autenticación en un servidor real?
 
-## Learning Laravel
+Respuesta: Expone información interna y sensible de la infraestructura del servidor (como capacidad de disco, memoria disponible, nombre del equipo y uso de CPU) a cualquier persona en internet sin control de acceso, facilitando tareas de reconocimiento para posibles ataques.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+4. Con polling cada 5 segundos, ¿cuántos pedidos por minuto recibe el servidor si hay 50 personas mirando?
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Respuesta: Cada persona realiza 12 peticiones por minuto (60 segundos / 5 segundos). Con 50 usuarios conectados simultáneamente, el servidor recibirá un total de 600 pedidos por minuto ($50 \times 12$), incluso si los datos del sistema no han cambiado.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+5. Si una app solo necesita la temperatura, ¿qué datos recibe de más al llamar a /api/metrics?
 
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
-
-```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
-```
-
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Respuesta: Recibe toda la estructura completa del JSON: el nombre del equipo (hostname), la versión del sistema operativo, la versión de PHP, el estado completo del disco, la memoria RAM, el porcentaje de uso de CPU y el tiempo de actividad (uptime). Este inconveniente en el que se transfieren más datos de los necesarios se conoce como over-fetching.
